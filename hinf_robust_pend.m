@@ -1,4 +1,4 @@
-Lr = [0.17 0.2159];
+Lr = [0.15 0.2159];
 Lp = [Lp Lp];
 
 clear A B C D
@@ -42,7 +42,8 @@ bw_col = size(B_w{1,1}, 2); % input size
 Q = sdpvar(a_row, a_col,'symmetric'); %% Matriz simétrica, definida positiva da dimensão de A
 Y = sdpvar(b_col, b_row, 'full'); %% Y = KQ com as dimensões de B'
 gama = sdpvar(1); % gamma da norma H_inf - função objetivo
-% gama = 1.1*1.1;
+% limit = 7.5;
+% gama = limit*limit;
 
 LMIs = set([]);
 for i=1:4
