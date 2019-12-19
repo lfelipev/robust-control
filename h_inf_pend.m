@@ -4,7 +4,7 @@
 % z = Cx + D_w*w + D_u*u
 %%
 
-clear A B C D
+clear A B C DN
 
 A = [0 0 1 0;
      0 0 0 1;
