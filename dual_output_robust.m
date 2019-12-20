@@ -73,7 +73,8 @@ bu_row = size(B_u{1,1}, 2);
 Q = sdpvar(a_row, a_col,'symmetric'); %% Matriz simétrica, definida positiva da dimensão de A
 Y = sdpvar(1, 4, 'full'); %% Y = KQ com as dimensões de B'
 gama = sdpvar(1); % gamma da norma H_inf - função objetivo
-
+limit = 140.2;
+gama = limit^2;
 
 LMIs = set([]);
 for i=1:4
@@ -97,6 +98,7 @@ for i=1:4
 end
 
 obj = gama; % Função objetivo a ser minimizada
+obj = []
 opt = sdpsettings('solver', 'sedumi', 'sedumi.eps', 1e-8, ...
                 'sedumi.cg.qprec', 1, 'sedumi.cg.maxiter', 49, ...
                 'sedumi.stepdif', 2);
