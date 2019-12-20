@@ -1,7 +1,8 @@
-Lr = [0.15 0.2159];
-Lp = [0.3365 0.60];
+Lr = [0.2159 0.2159];
+Lp = [0.3365 0.3365];
 
 clear A B C D
+clc
 
 for i=1:2
     for j=1:2
@@ -19,13 +20,14 @@ for i=1:2
         
         B_w{2*(i-1)+j} = zeros(4,1);
         
-        C{2*(i-1)+j} = [1 0 0 0; 0 1 0 0];
+        C{2*(i-1)+j} = [1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1];
         
-        D_u{2*(i-1)+j} = zeros(2,1);
+        
         
         c_row = size(C{2*(i-1)+j}, 1);
         b_col = size(B_u{2*(i-1)+j}, 2);
         D_w{2*(i-1)+j} = zeros(c_row, b_col);
+        D_u{2*(i-1)+j} = D_w{2*(i-1)+j};
     end
 end
 
@@ -46,6 +48,8 @@ end
 % 
 %         C{2*(i-1)+j} = [4 -3 3 0; -2 2 -1 2];
 % 
+%         c_row = size(C{2*(i-1)+j}, 1);
+%         b_col = size(B_u{2*(i-1)+j}, 2);
 %         D_u{2*(i-1)+j} = zeros(c_row,b_col);
 %         D_w = D_u;
 %         
@@ -53,20 +57,23 @@ end
 % end
 % 
 % Y = sdpvar(2, 2, 'full'); %% Y = KQ com as dimensões de B'
-% a_row = size(A{1,1}, 1);
-% a_col = size(A{1,1}, 2);
-% b_row = size(B_u{1,1}, 1);
-% b_col = size(B_u{1,1}, 2);
-% c_row = size(C{1,1}, 1);
-% c_col = size(C{1,1}, 2);
-% bw_col = size(B_w{1,1}, 2); % input size
+a_row = size(A{1,1}, 1);
+a_col = size(A{1,1}, 2);
+b_row = size(B_u{1,1}, 1);
+b_col = size(B_u{1,1}, 2);
+c_row = size(C{1,1}, 1);
+c_col = size(C{1,1}, 2);
+bw_col = size(B_w{1,1}, 2); % input size
+bu_col = size(B_u{1,1}, 1);
+bu_row = size(B_u{1,1}, 2);
 
 % D_w = zeros(c_row, b_col);
 % D_u = zeros(c_row,b_col);
 
 Q = sdpvar(a_row, a_col,'symmetric'); %% Matriz simétrica, definida positiva da dimensão de A
-Y = sdpvar(2, 1, 'full'); %% Y = KQ com as dimensões de B'
+Y = sdpvar(1, 4, 'full'); %% Y = KQ com as dimensões de B'
 gama = sdpvar(1); % gamma da norma H_inf - função objetivo
+
 
 LMIs = set([]);
 for i=1:4
@@ -89,30 +96,27 @@ for i=1:4
     LMIs = [LMIs, Q>=0, H_inf <= 0];
 end
 
-
-LMIs = [LMIs, Q>=0, H_inf <= 0];
 obj = gama; % Função objetivo a ser minimizada
-% obj = [];
 opt = sdpsettings('solver', 'sedumi', 'sedumi.eps', 1e-8, ...
                 'sedumi.cg.qprec', 1, 'sedumi.cg.maxiter', 49, ...
                 'sedumi.stepdif', 2);
 sol = optimize(LMIs, gama, opt);
 
-Q = double(Q);
+Q = double(Q)
 Y = double(Y);
 % gama = double(gama);
 
 % O sistema é estabilizável pela lei de controle u = Y(Q^-1)x
-M = C{4}*Q/C{4};
+M = C{4}*Q*inv(C{4});
 K = Y/M % K h_inf
 K_Q = [-5.26 28.16 -2.76 3.22];
-K = [4.6497 6.2001; 5.7551 8.2946];
+% K = [4.6497 6.2001; 5.7551 8.2946];
 
 % A norma H_inf do sistema é dada por |G_wz|_inf < gamma
 H_inf = sqrt(gama)
 A_hinf = (A{4}-B_u{4}*K*C{4}); eig(A_hinf)
 sys = ss(A_hinf, B_u{4}, C{4}, D_u{4});
-step(sys)
+% step(sys)
 %%
 % Plot
 % [reference,t] = gensig('square',5,10,0.1);
