@@ -78,6 +78,6 @@ K = Y/Q % K h_inf
 K_Q = [-5.26 28.16 -2.76 3.22];
 
 
-% and the Hinf norm of the system is |G_wz| = sqrt(gamma) 
+% A norma H_inf do sistema é dada por |G_wz|_inf < gamma
 H_inf = sqrt(gama)
 A_hinf = (A{4}-B_u{4}*K); eig(A_hinf)

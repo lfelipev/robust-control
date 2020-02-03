@@ -21,8 +21,7 @@ for i=1:2
         B_w{2*(i-1)+j} = zeros(4,1);
         
         C{2*(i-1)+j} = [1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1];
-        
-        
+       
         
         c_row = size(C{2*(i-1)+j}, 1);
         b_col = size(B_u{2*(i-1)+j}, 2);
@@ -73,7 +72,7 @@ bu_row = size(B_u{1,1}, 2);
 Q = sdpvar(a_row, a_col,'symmetric'); %% Matriz simétrica, definida positiva da dimensão de A
 Y = sdpvar(1, 4, 'full'); %% Y = KQ com as dimensões de B'
 gama = sdpvar(1); % gamma da norma H_inf - função objetivo
-limit = 140.2;
+limit = 250.2;
 gama = limit^2;
 
 LMIs = set([]);
@@ -120,6 +119,11 @@ A_hinf = (A{4}-B_u{4}*K*C{4}); eig(A_hinf)
 sys = ss(A_hinf, B_u{4}, C{4}, D_u{4});
 % step(sys)
 %%
+K = K*C{4}
+C{4} = [1 0 0 0;
+        0 1 0 0];
+D_u{4} = zeros(2,1);
+
 % Plot
 % [reference,t] = gensig('square',5,10,0.1);
 % reference = deg2rad(20*reference);
