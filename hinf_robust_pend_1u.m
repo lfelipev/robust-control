@@ -1,3 +1,5 @@
+%%setup_rotpen
+
 Lr = [0.16 0.2159];
 
 clear A B C D
@@ -38,25 +40,36 @@ c_col = size(C{1,1}, 2);
 bw_col = size(B_w{1,1}, 2); % input size
 
 Q = sdpvar(a_row, a_col,'symmetric'); %% Positive definite matrix
-Y = sdpvar(b_col, b_row, 'full'); %% Y = KQ 
+Y = sdpvar(b_col, b_row, 'full'); %% Y = KQ
+W = sdpvar(c_row, c_row, 'symmetric'); %  NxN com N igual ao número de linhas de C
+
 gama = sdpvar(1); % Hinf gamma - objective
+
+
+
 
 % limit = 20.0;
 % gama = limit*limit;
-epsilon = 0.30;
+epsilon = 0.375;
 
 % If exists a symmetric matrix Q, a matrix P and a scalar gamma > 0 such
 % that
 LMIs = set([]);
 for i=1:2
+    
+    H2_1 = [ W               (C{i}*Q+D_u{i}*Y);
+            (Q*C{i}'+Y'*D_u{i}')    Q];
+        
+   
     H_inf = [(A{i}*Q+Q*A{i}'-B_u{i}*Y-Y'*B_u{i}')       B_w{i}              (Q*C{i}'-Y'*D_u{i}');
               B_w{i}'                                  -gama*eye(bw_col)     D_w{i}';
               (C{i}*Q-D_u{i}*Y)                         D_w{i}              -eye(c_row)];
     
-    LMIs = [LMIs, Q>= epsilon*eye(a_row), H_inf<=0];
+    %control_limit = [Q Y'; Y 5^2];
+          
+    LMIs = [LMIs, Q>= epsilon*eye(a_row), H_inf<=0, H2_1 >= 0];
 end
 
-LMIs = [LMIs, Q>=0, H_inf<=0];
 obj = gama; % Objective function to be minimized
 
 % obj = [];

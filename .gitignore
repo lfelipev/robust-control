@@ -1,0 +1,6 @@
+*.~m
+*.RT-WIN64
+*.SLXC
+*.original
+/q_rotpen_bal_quarc_win64/*
+/slprj/
